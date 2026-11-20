@@ -1,0 +1,15 @@
+# Environment and cache
+.venv/
+__pycache__/
+*.pyc
+
+# Build output
+build/
+dist/
+
+# Private data
+memory.db
+*.db
+
+# Big model files
+*.gguf
