@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
 from jero.brain.local_qwen import LocalQwenBrain
 from jero.brain.worker import GenerationWorker
 from jero.memory.commands import MemoryCommandHandler
+from jero.ui.voice_window import VoiceWindow
 
 
 def render_markdown(text):
@@ -495,18 +496,27 @@ class MainWindow(QMainWindow):
 
 
         self.mic_button = QPushButton("🎤")
-        self.mic_button.setToolTip("Voice input (coming soon)")
-        self.mic_button.setEnabled(False)
+        self.mic_button.setToolTip("Open JERO Voice chat")
+        self.mic_button.setEnabled(True)
         self.mic_button.setStyleSheet("""
             QPushButton {
                 background-color: #2A2A2A;
-                color: #8A8A8A;
+                color: #E8E8E8;
                 border: 1px solid #383838;
                 border-radius: 12px;
                 font-size: 17px;
             }
+
+            QPushButton:hover {
+                background-color: #333333;
+            }
+
+            QPushButton:pressed {
+                background-color: #3A3A3A;
+            }
         """)
         self.mic_button.setFixedSize(45, 45)
+        self.mic_button.clicked.connect(self.open_voice_window)
 
         self.send_button = QPushButton("↑")
         self.send_button.setStyleSheet("""
@@ -1055,6 +1065,23 @@ class MainWindow(QMainWindow):
         self.send_button.setEnabled(True)
         self.input.setEnabled(True)
         self.input.setFocus()
+
+    def open_voice_window(self):
+        """Open the separate Voice Chat window (single instance)."""
+        if hasattr(self, "_voice_window") and self._voice_window is not None:
+            # Already open — bring to front and focus
+            self._voice_window.show()
+            self._voice_window.raise_()
+            self._voice_window.activateWindow()
+            return
+
+        self._voice_window = VoiceWindow(self.brain, self.current_conversation_id, self)
+        self._voice_window.closed.connect(self._on_voice_window_closed)
+        self._voice_window.show()
+
+    def _on_voice_window_closed(self):
+        """Called when the Voice Window is closed by the user."""
+        self._voice_window = None
 
     def closeEvent(self, event):
         # Stop only the local llama-server process launched by this JERO instance.

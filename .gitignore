@@ -13,3 +13,11 @@ memory.db
 
 # Big model files
 *.gguf
+
+# Logs
+runtime/*.log
+
+# Voice model weights (see models/voice/README.md)
+models/voice/stt/
+models/voice/tts/
+models/voice/vad/
